@@ -90,12 +90,8 @@ _iterator_next(HV *self)
         if (namep == NULL)
                 return 0;
 
-        /*
-         * Get next (after _next): name1 = [ 0, 2, next ]
-         */
-
-        name1[0] = 0;
-        name1[1] = 2; /* get next */
+        name1[0] = CTL_SYSCTL;
+        name1[1] = CTL_SYSCTL_NEXT;
         memcpy((name1 + 2), next, next_len * sizeof(int));
         len1 = next_len + 2;
 
@@ -116,12 +112,8 @@ _iterator_next(HV *self)
         /* at this point, name2/len2 has next iterator, update _next here */
         hv_store(self, "_next", 5, newSVpvn((char const *) name2, len2 * sizeof(int)), 0);
 
-        /* 
-         * Get name (from name2): name1 = [ 0, 1, name2 ]
-         */
-
-        name1[0] = 0;
-        name1[1] = 1; /* get name */
+        name1[0] = CTL_SYSCTL;
+        name1[1] = CTL_SYSCTL_NAME;
         memcpy((name1 + 2), name2, len2 * sizeof(int));
         len1 = len2 + 2;
 
@@ -202,8 +194,8 @@ _mib_info(const char *arg)
         nr_octets = miblen;
 
         /* determine how to format the results */
-        mib[0] = 0;
-        mib[1] = 4;
+        mib[0] = CTL_SYSCTL;
+        mib[1] = CTL_SYSCTL_OIDFMT;
         if (sysctl(mib, nr_octets+2, fmt, &len, NULL, 0) == -1) {
             XSRETURN_UNDEF;
         }
